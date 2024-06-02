@@ -12,7 +12,7 @@ set -o noclobber
 shopt -s checkwinsize
 
 # Automatically trim long paths in the prompt (requires Bash 4.x)
-PROMPT_DIRTRIM=2
+PROMPT_DIRTRIM=${PROMPT_DIRTRIM:-2}
 
 # Enable history expansion with space
 # E.g. typing !!<space> will replace the !! with your last command
@@ -25,10 +25,8 @@ shopt -s globstar 2> /dev/null
 # (used in case, [[]], word expansions and command completions)
 if [[ ${OMB_CASE_SENSITIVE:-${CASE_SENSITIVE:-}} == true ]]; then
    shopt -u nocaseglob
-   shopt -u nocasematch
 else
    shopt -s nocaseglob
-   shopt -s nocasematch
 fi
 
 ## SMARTER TAB-COMPLETION (Readline bindings) ##
@@ -43,10 +41,19 @@ if [[ ${OMB_CASE_SENSITIVE:-${CASE_SENSITIVE:-}} == true ]]; then
 else
 	# By default, case sensitivity is disabled.
 	bind "set completion-ignore-case on"
-fi
 
-# Treat hyphens and underscores as equivalent
-bind "set completion-map-case on"
+	# Treat hyphens and underscores as equivalent
+	# CASE_SENSITIVE must be off
+	if [[ ! ${OMB_HYPHEN_SENSITIVE-} && ${HYPHEN_INSENSITIVE} ]]; then
+		case $HYPHEN_INSENSITIVE in
+		(true)  OMB_HYPHEN_SENSITIVE=true ;;
+		(false) OMB_HYPHEN_SENSITIVE=false ;;
+		esac
+	fi
+	if [[ ${OMB_HYPHEN_SENSITIVE-} == false ]]; then
+		bind "set completion-map-case on"
+	fi
+fi
 
 # Display matches for ambiguous patterns at first tab press
 bind "set show-all-if-ambiguous on"

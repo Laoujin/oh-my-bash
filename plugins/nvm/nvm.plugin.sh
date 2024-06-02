@@ -1,5 +1,5 @@
 #! bash oh-my-bash.module
-# Description: automatically load nvm 
+# Description: automatically load nvm
 #
 # @var[opt] OMB_PLUGIN_NVM_AUTO_USE enable .nvmrc autoload
 
@@ -52,7 +52,7 @@ if _omb_util_command_exists nvm && [[ ${OMB_PLUGIN_NVM_AUTO_USE-} == true ]]; th
     done
     echo "$path"
   }
-  
+
   function _omb_plugin_nvm_cd {
     cd "$@" || return "$?"
     local nvm_path=$(_omb_plugin_nvm_find_up .nvmrc)
@@ -79,17 +79,17 @@ if _omb_util_command_exists nvm && [[ ${OMB_PLUGIN_NVM_AUTO_USE-} == true ]]; th
       local nvm_version
       nvm_version=$(< "$nvm_path"/.nvmrc)
 
-      # Add the `v` suffix if it does not exists in the .nvmrc file
-      if [[ $nvm_version != v* ]]; then
-        nvm_version=v$nvm_version
-      fi
+      local locally_resolved_nvm_version
+      # `nvm ls` will check all locally-available versions.  If there are
+      # multiple matching versions, take the latest one.  Remove the `->` and
+      # `*` characters and spaces.  `locally_resolved_nvm_version` will be
+      # `N/A` if no local versions are found.
+      locally_resolved_nvm_version=$(nvm ls --no-colors $(<"./.nvmrc") | sed -n '${s/->//g;s/[*[:space:]]//g;p;}')
 
       # If it is not already installed, install it
-      if nvm ls "$nvm_version" | grep -qx '[[:space:]]*N/A[[:space:]]*'; then
+      if [[ $locally_resolved_nvm_version == N/A ]]; then
         nvm install "$nvm_version"
-      fi
-
-      if [[ $(nvm current) != "$nvm_version" ]]; then
+      elif [[ $(nvm current) != "$locally_resolved_nvm_version" ]]; then
         nvm use "$nvm_version"
       fi
     fi

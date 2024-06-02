@@ -71,13 +71,13 @@ function prompt_git {
   local branchName=''
 
   # Check if the current directory is in a Git repository.
-  if git rev-parse --is-inside-work-tree &>/dev/null; then
+  if _omb_prompt_git rev-parse --is-inside-work-tree &>/dev/null; then
     # Get the short symbolic ref.
     # If HEAD isn’t a symbolic ref, get the short SHA for the latest commit
     # Otherwise, just give up.
     branchName=$(
-      git symbolic-ref --quiet --short HEAD 2> /dev/null ||
-        git rev-parse --short HEAD 2> /dev/null ||
+      _omb_prompt_git symbolic-ref --quiet --short HEAD 2> /dev/null ||
+        _omb_prompt_git rev-parse --short HEAD 2> /dev/null ||
         echo '(unknown)');
 
     echo "${D_GIT_DEFAULT_COLOR}on ${D_GIT_BRANCH_COLOR}${branchName} "
@@ -90,7 +90,7 @@ function limited_pwd {
   # Max length of PWD to display
   local MAX_PWD_LENGTH=20
 
-  # Replace $HOME with ~ if possible 
+  # Replace $HOME with ~ if possible
   local RELATIVE_PWD=${PWD/#$HOME/\~}
 
   local offset=$((${#RELATIVE_PWD}-MAX_PWD_LENGTH))
@@ -112,7 +112,7 @@ function _omb_theme_PROMPT_COMMAND {
   local MOVE_CURSOR_RIGHTMOST='\e['${COLUMNS:-9999}'C'
   local MOVE_CURSOR_5_LEFT='\e[5D'
   local THEME_CLOCK_FORMAT="%H:%M:%S %y-%m-%d"
-  # Replace $HOME with ~ if possible 
+  # Replace $HOME with ~ if possible
   local RELATIVE_PWD=${PWD/#$HOME/\~}
 
   local python_venv
